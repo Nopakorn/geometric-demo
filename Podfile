@@ -1,0 +1,2 @@
+	 autoProfile: { prompts: ["pure"]},
+
