@@ -2,14 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>LSApplicationCategoryType</key>
-	<string></string>
-	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>this app requies your bluetooth to enable</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>this app requires your location data</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>this app requires your location data</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -28,6 +20,14 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>this app requires your location data</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>this app requies your bluetooth to enable</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>this app requires your location data</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>this app requires your location data</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

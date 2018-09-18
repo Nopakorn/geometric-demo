@@ -8,16 +8,20 @@
 
 import UIKit
 import KontaktSDK
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
+    var beaconManager = KTKBeaconManager()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        
+        beaconManager.delegate = self
         Kontakt.setAPIKey("FHRSgwLIAilDHYGrIEBACHauZmMjYtyC")
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options:[.alert, .sound]) { (granted, error) in }
+        
         return true
     }
 
@@ -42,7 +46,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
+}
 
-
+extension AppDelegate: KTKBeaconManagerDelegate {
+    func beaconManager(_ manager: KTKBeaconManager, didExitRegion region: KTKBeaconRegion) {
+        guard region is KTKBeaconRegion else { return }
+        
+        let content = UNMutableNotificationContent()
+        content.title = "Exist region"
+        content.body = "YES u just exist a region"
+        content.sound = .default()
+        
+        let request = UNNotificationRequest(identifier: "otrtbeacon", content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
+    }
 }
 
