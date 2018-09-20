@@ -12,7 +12,6 @@ import KontaktSDK
 class MonitoringViewController: UIViewController {
     var beaconManager: KTKBeaconManager!
     
-    @IBOutlet weak var scanButton: UIButton!
     @IBOutlet weak var rssi27755Label: UILabel!
     @IBOutlet weak var rssi22816Label: UILabel!
     @IBOutlet weak var rssi64209Label: UILabel!
@@ -24,6 +23,10 @@ class MonitoringViewController: UIViewController {
         beaconManager.requestLocationAlwaysAuthorization()
         let myProximityUuid = UUID(uuidString: "F7826DA6-4FA2-4E98-8024-BC5B71E0893E")
         let region = KTKBeaconRegion(proximityUUID: myProximityUuid!, identifier: "Beacon OTRT")
+        
+        region.notifyOnExit = true
+        region.notifyOnEntry = true
+        
         
         uuidLabel.text = "\(region.proximityUUID)"
         statusLabel.text = "not determine"
@@ -66,14 +69,7 @@ class MonitoringViewController: UIViewController {
 extension MonitoringViewController: KTKBeaconManagerDelegate {
     func beaconManager(_ manager: KTKBeaconManager, didChangeLocationAuthorizationStatus status: CLAuthorizationStatus) {
         if status == .authorizedAlways {
-            // When status changes to CLAuthorizationStatus.authorizedAlways
-            // e.g. after calling beaconManager.requestLocationAlwaysAuthorization()
-            // we can start region monitoring from here
-//            let myProximityUuid = UUID(uuidString: "F7826DA6-4FA2-4E98-8024-BC5B71E0893E")
-//            let region = KTKBeaconRegion(proximityUUID: myProximityUuid!, identifier: "Beacon OTRT")
-//            beaconManager.startMonitoring(for: region)
             print("authorizeee")
-            
         }
     }
     
@@ -90,7 +86,7 @@ extension MonitoringViewController: KTKBeaconManagerDelegate {
     
     func beaconManager(_ manager: KTKBeaconManager, monitoringDidFailFor region: KTKBeaconRegion?, withError error: NSError?) {
         // Handle monitoring failing to start for your region
-        print("monitoringdidfail")
+        print("monitoringdidfail \(error.debugDescription)")
         statusLabel.text = "failed monitoring"
     }
     
@@ -112,7 +108,7 @@ extension MonitoringViewController: KTKBeaconManagerDelegate {
     
     func beaconManager(_ manager: KTKBeaconManager, didRangeBeacons beacons: [CLBeacon], in region: KTKBeaconRegion) {
         for beacon in beacons {
-            print("UUID: \(beacon.proximityUUID), Major: \(beacon.major) and Minor: \(beacon.minor) from \(region.identifier) in \(beacon.proximity) proximity, rssi: \(beacon.rssi)")
+            print("UUID: \(beacon.proximityUUID), Major: \(beacon.major) and Minor: \(beacon.minor) from \(region.identifier) in \(beacon.proximity) proximity, rssi: \(beacon.rssi) accuracy: \(beacon.accuracy)")
             displayRSSI(beacon)
         }
     }
