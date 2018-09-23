@@ -18,7 +18,7 @@ class BeaconTableViewController: UITableViewController {
         
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.rowHeight = 90
+        tableView.rowHeight = 115
         tableView.tableFooterView = UIView(frame: CGRect.zero)
         setUpBeacons()
         
@@ -86,6 +86,7 @@ class BeaconTableViewController: UITableViewController {
             if(x.major == clBeacon.major) {
                 x.rssi = clBeacon.rssi
                 x.accuracy = clBeacon.accuracy
+                x.proximity = clBeacon.proximity.toString()
             }
             
             return x
@@ -155,6 +156,7 @@ extension BeaconTableViewController: KTKBeaconManagerDelegate {
     func beaconManager(_ manager: KTKBeaconManager, didRangeBeacons beacons: [CLBeacon], in region: KTKBeaconRegion) {
         for beacon in beacons {
             print("UUID: \(beacon.proximityUUID), Major: \(beacon.major) and Minor: \(beacon.minor) from \(region.identifier) in \(beacon.proximity) proximity, rssi: \(beacon.rssi) accuracy: \(beacon.accuracy)")
+            _ = beacon.proximity
             updateBeacon(beacon)
         }
     }
