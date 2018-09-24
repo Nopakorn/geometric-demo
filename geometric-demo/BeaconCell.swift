@@ -14,6 +14,7 @@ class BeaconCell: UITableViewCell {
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var metersLabel: UILabel!
     @IBOutlet weak var rssiLabel: UILabel!
+    @IBOutlet weak var proximityLabel: UILabel!
     
     func setName(_ name: String) {
         nameLabel.text = name
@@ -25,5 +26,9 @@ class BeaconCell: UITableViewCell {
     
     func setMeters(_ meters: String) {
         metersLabel.text = meters
+    }
+    
+    func setProximity(_ proximity: String) {
+        proximityLabel.text = proximity
     }
 }

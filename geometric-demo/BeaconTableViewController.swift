@@ -8,13 +8,22 @@
 
 import UIKit
 import KontaktSDK
+import CoreBluetooth
 
 class BeaconTableViewController: UITableViewController {
     fileprivate var beacons = [Beacon]()
     fileprivate var beaconManager: KTKBeaconManager!
+    fileprivate var centralManager: CBCentralManager!
+    fileprivate var region: KTKBeaconRegion!
+
+    @IBOutlet weak var bluetoothIconNav: UIBarButtonItem!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        self.navigationItem.leftBarButtonItem = UIBarButtonItem().itemWith(colorfulImage: nil, title: "Scan", target: self, action: #selector(pressScanButton(_:)))
+        centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.global())
+        centralManager.delegate = self
         
         tableView.dataSource = self
         tableView.delegate = self
@@ -25,26 +34,9 @@ class BeaconTableViewController: UITableViewController {
         beaconManager = KTKBeaconManager(delegate: self)
         beaconManager.requestLocationAlwaysAuthorization()
         let myProximityUuid = UUID(uuidString: "F7826DA6-4FA2-4E98-8024-BC5B71E0893E")
-        let region = KTKBeaconRegion(proximityUUID: myProximityUuid!, identifier: "Beacon OTRT")
-        
+        region = KTKBeaconRegion(proximityUUID: myProximityUuid!, identifier: "Beacon OTRT")
         region.notifyOnExit = true
         region.notifyOnEntry = true
-        
-        switch KTKBeaconManager.locationAuthorizationStatus() {
-        case .notDetermined:
-            print("location notDetermined")
-        case .denied, .restricted:
-            print("location denied")
-        case .authorizedWhenInUse, .authorizedAlways:
-            print("location authorizedAlways")
-            if KTKBeaconManager.isMonitoringAvailable() {
-                print("start")
-                beaconManager.stopMonitoringForAllRegions()
-                beaconManager.startMonitoring(for: region)
-            } else {
-                print("not available")
-            }
-        }
     }
     
     func setUpBeacons() {
@@ -52,6 +44,7 @@ class BeaconTableViewController: UITableViewController {
             "name": "Beacon JsUSPg",
             "accuracy": 0.0,
             "rssi": 0,
+            "proximity": "no",
             "major": 64209,
             "minor": 44429
         ]
@@ -60,6 +53,7 @@ class BeaconTableViewController: UITableViewController {
             "name": "Beacon JsSgHh",
             "accuracy": 0.0,
             "rssi": 0,
+            "proximity": "no",
             "major": 22816,
             "minor": 19687
         ]
@@ -68,6 +62,7 @@ class BeaconTableViewController: UITableViewController {
             "name": "Beacon Js2I5t",
             "accuracy": 0.0,
             "rssi": 0,
+            "proximity": "no",
             "major": 27755,
             "minor": 9767
         ]
@@ -90,9 +85,43 @@ class BeaconTableViewController: UITableViewController {
             }
             
             return x
-            }.sorted { $0.rssi > $1.rssi }
+            }.sorted { $0.accuracy < $1.accuracy }
         
         tableView.reloadData()
+    }
+    
+    //The target function
+    @objc func pressScanButton(_ sender: UIButton){
+        if sender.title(for: .normal) == "Scan" {
+            startMornitoring()
+        } else {
+            stopMornitoring()
+        }
+    }
+    
+    fileprivate func startMornitoring() {
+        //scan
+        switch KTKBeaconManager.locationAuthorizationStatus() {
+        case .notDetermined, .denied, .restricted:
+            self.popUpLocationPermission()
+        case .authorizedWhenInUse, .authorizedAlways:
+            if KTKBeaconManager.isMonitoringAvailable() {
+                beaconManager.stopMonitoringForAllRegions()
+                beaconManager.startMonitoring(for: region)
+                navigationItem.leftBarButtonItem = UIBarButtonItem().itemWith(colorfulImage: nil, title: "Stop", target: self, action: #selector(pressScanButton(_:)))
+            }
+        }
+    }
+    
+    fileprivate func stopMornitoring() {
+        beaconManager.stopMonitoringForAllRegions()
+        beaconManager.stopRangingBeaconsInAllRegions()
+        navigationItem.leftBarButtonItem = UIBarButtonItem().itemWith(colorfulImage: nil, title: "Scan", target: self, action: #selector(pressScanButton(_:)))
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        stopMornitoring()
     }
 }
 
@@ -114,6 +143,7 @@ extension BeaconTableViewController {
         cell.setRssi("\(_beaconFirst.rssi)")
         let strAccuracy = "\(_beaconFirst.accuracy)"
         cell.setMeters(strAccuracy)
+        cell.setProximity(_beaconFirst.proximity)
         
         return cell
     }
@@ -128,10 +158,8 @@ extension BeaconTableViewController: KTKBeaconManagerDelegate {
     }
     
     func beaconManager(_ manager: KTKBeaconManager, didDetermineState state: CLRegionState, for region: KTKBeaconRegion) {
-        print("determine \(state.rawValue), region \(region.proximityUUID)")
         if state.rawValue == 1 {
-            beaconManager.stopMonitoringForAllRegions()
-            beaconManager.startMonitoring(for: region)
+            startMornitoring()
         }
     }
     
@@ -160,4 +188,20 @@ extension BeaconTableViewController: KTKBeaconManagerDelegate {
             updateBeacon(beacon)
         }
     }
+}
+
+extension BeaconTableViewController: CBCentralManagerDelegate {
+    
+    func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        switch central.state {
+        case .poweredOn:
+            bluetoothIconNav.image = UIImage(named: "BleOn_")
+        case .poweredOff:
+            bluetoothIconNav.image = UIImage(named: "BleOff_")
+        default:
+            bluetoothIconNav.image = UIImage(named: "BleOff_")
+            break;
+        }
+    }
+    
 }
