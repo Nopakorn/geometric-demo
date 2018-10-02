@@ -36,14 +36,9 @@ class AreaMornitoringViewController: UIViewController {
 //        let dB = 36.06;
 //        let dC = 60.83;
         
-//        let point = getCoordinate(BeaconA: a, BeaconB: b, BeaconC: c, distanceA: CGFloat(dA), distanceB: CGFloat(dB), distanceC: CGFloat(dC))
-        
         let point = calCoordinates(BeaconA: a, BeaconB: b, BeaconC: c, distanceA: CGFloat(dA), distanceB: CGFloat(dB), distanceC: CGFloat(dC))
         print("_point is x \(point.x), y \(point.y)")
-        //print("width \(view.frame.width), height \(view.frame.height)")
-       // print("point is x:\(point.x) y:\(point.y)")
-        
-        
+
         let dAB = findDistance(PointA: a, PointB: b)
         let dBC = findDistance(PointA: b, PointB: c)
         let dCA = findDistance(PointA: c, PointB: a)
@@ -126,29 +121,6 @@ class AreaMornitoringViewController: UIViewController {
         
         return d
     }
-    
-    func getCoordinate(BeaconA a: CGPoint, BeaconB b: CGPoint, BeaconC c: CGPoint, distanceA dA: CGFloat, distanceB dB: CGFloat, distanceC dC: CGFloat) -> CGPoint {
-        var W, Z, x, y, y2: CGFloat
-        
-        let wda = (dA * dA) - (dB * dB)
-        let waxy = (a.x * a.x) - (a.y * a.y)
-        
-        let zdb = (dB * dB) - (dC * dC)
-        let zbxy = (b.x * b.x) - (b.y * b.y)
-        W = (wda - waxy) + (b.x * b.x) + (b.y * b.y)
-        Z = (zdb - zbxy) + (c.x * c.x) + (c.y * c.y)
-        
-        x = (W * (c.y-b.y) - Z * (b.y-a.y)) / (2 * ((b.x-a.x) * (c.y-b.y) - (c.x-b.x) * (b.y-a.y)))
-        let _reY = b.y-a.y == 0 ? 1 : b.y-a.y
-        let _reX = c.y-b.y == 0 ? 1 : c.y-b.y
-        y = (W - 2 * x * (b.x - a.x)) / (2 * (_reY))
-        //y2 is a second measure of y to mitigate errors
-        y2 = (Z - 2 * x * (c.x-b.x)) / (2 * (_reX))
-        
-        y = (y + y2) / 2
-        return CGPoint(x: y, y: x)
-    }
-    
     
     func calCoordinates(BeaconA a: CGPoint, BeaconB b: CGPoint, BeaconC c: CGPoint, distanceA dA: CGFloat, distanceB dB: CGFloat, distanceC dC: CGFloat) -> CGPoint {
         
